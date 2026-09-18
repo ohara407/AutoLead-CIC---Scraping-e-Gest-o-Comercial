@@ -1,0 +1,6 @@
+{
+  "name": "AutoLead & CIC - Scraping e Gestão Comercial",
+  "description": "Automação de prospecção de negócios locais sem site, qualificação por IA, envio WhatsApp, planilha inteligente, integração de teste de campo App-CIC e relatórios estratégicos.",
+  "requestFramePermissions": ["notifications"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
