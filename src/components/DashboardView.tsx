@@ -23,6 +23,7 @@ interface DashboardViewProps {
   onOpenScraping: () => void;
   onOpenSpreadsheet: () => void;
   onOpenAppCic: () => void;
+  onOpenFeedback?: () => void;
   onSelectLead: (leadId: string) => void;
   onOpenWhatsApp: (lead: Lead) => void;
 }
@@ -33,6 +34,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenScraping,
   onOpenSpreadsheet,
   onOpenAppCic,
+  onOpenFeedback,
   onSelectLead,
   onOpenWhatsApp,
 }) => {
@@ -82,24 +84,100 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+        <div className="flex items-center gap-2.5 shrink-0 flex-wrap w-full md:w-auto">
           <button
             id="btn-quick-scrape"
             onClick={onOpenScraping}
-            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+            className="flex-1 sm:flex-none min-h-[44px] px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
           >
             <Play className="w-4 h-4 fill-white" />
-            <span>Nova Varredura de Scraping</span>
+            <span>Nova Varredura</span>
           </button>
+
+          {onOpenFeedback && (
+            <button
+              onClick={onOpenFeedback}
+              className="flex-1 sm:flex-none min-h-[44px] px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>Feedbacks &amp; Venda</span>
+            </button>
+          )}
 
           <button
             id="btn-quick-spreadsheet"
             onClick={onOpenSpreadsheet}
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-semibold text-xs sm:text-sm rounded-xl transition-all flex items-center gap-2"
+            className="flex-1 sm:flex-none min-h-[44px] px-4 py-2.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white border border-slate-700 font-semibold text-xs sm:text-sm rounded-xl transition-all flex items-center justify-center gap-2"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
             <span>Ver Planilha</span>
           </button>
+        </div>
+      </div>
+
+      {/* 🚀 Visual Step-by-Step Strategy: How it intensifies prospecting & generates website profits */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                Como Esta Máquina Funciona: Da Prospecção ao Lucro no Bolso
+              </h3>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              O método de campo para abordar comércios sem site, conquistar a confiança com o App-CIC e fechar a venda de sites
+            </p>
+          </div>
+          <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+            Ticket Médio: R$ 1.200 a R$ 2.500 / site
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 pt-1">
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 hover:border-emerald-300 transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-slate-900 bg-slate-200 px-2 py-0.5 rounded">Etapa 1</span>
+              <Store className="w-4 h-4 text-slate-600" />
+            </div>
+            <h4 className="text-xs font-black text-slate-800">1. Radar de Comércios Sem Site</h4>
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              Varre automaticamente as 4 regiões (Cocaia, Jurubatuba, Maria Benedita 91, Copan) filtrando quem só tem balcão físico e não tem página na web.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 space-y-1.5 hover:border-purple-300 transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-purple-900 bg-purple-200 px-2 py-0.5 rounded">Etapa 2</span>
+              <Package className="w-4 h-4 text-purple-600" />
+            </div>
+            <h4 className="text-xs font-black text-purple-950">2. Cavalo de Tróia: App-CIC Grátis</h4>
+            <p className="text-[11px] text-purple-800 leading-relaxed">
+              Você entrega o controle de estoque 100% gratuito. O dono não desconfia porque não há cobrança e ele resolve a dor de faltar produtos no balcão.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1.5 hover:border-emerald-300 transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-emerald-900 bg-emerald-200 px-2 py-0.5 rounded">Etapa 3</span>
+              <MessageSquare className="w-4 h-4 text-emerald-600" />
+            </div>
+            <h4 className="text-xs font-black text-emerald-950">3. Formulário de Opinião Real</h4>
+            <p className="text-[11px] text-emerald-800 leading-relaxed">
+              Após 48h de teste, o comerciante responde detalhadamente o que gostou, o que odiou e se clientes perguntam por cardápio/catálogo online.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-gradient-to-br from-slate-900 to-emerald-950 text-white p-4 rounded-xl border border-emerald-800/40 space-y-1.5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-slate-950 bg-emerald-400 px-2 py-0.5 rounded">Etapa 4</span>
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
+            </div>
+            <h4 className="text-xs font-black text-emerald-300">4. Venda do Site Profissional</h4>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              Com o gancho do próprio formulário dele, você apresenta uma vitrine pronta com botão de pedidos no WhatsApp e fecha o site por fora!
+            </p>
+          </div>
         </div>
       </div>
 

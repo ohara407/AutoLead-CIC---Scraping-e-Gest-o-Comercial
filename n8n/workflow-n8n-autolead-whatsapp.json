@@ -1,0 +1,241 @@
+{
+  "name": "AutoLead & App-CIC - Disparo WhatsApp & Convite Beta Tester Grátis",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 9 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "node-schedule-cron",
+      "name": "Agendamento Diário (09:30 Seg-Sex)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [180, 260]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-trigger",
+        "options": {}
+      },
+      "id": "node-webhook-manual",
+      "name": "Webhook Instantâneo (Via App AutoLead)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [180, 460],
+      "webhookId": "autolead-webhook-cic"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.AUTOLEAD_API_URL || 'http://localhost:3000' }}/api/leads",
+        "options": {}
+      },
+      "id": "node-fetch-leads",
+      "name": "Buscar Leads na API AutoLead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [420, 360]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filtra e seleciona apenas leads qualificados e ainda não disparados\nconst items = $input.all();\nconst validLeads = [];\n\nfor (const item of items) {\n  const lead = item.json;\n  // Critérios de filtro: sem site, precisa de estoque, pendente de disparo e com whatsapp\n  const isPending = lead.dispatchStatus === 'pendente' || lead.status === 'qualificado';\n  const hasWhatsApp = lead.whatsapp && lead.whatsapp.length >= 10;\n  const needsSite = lead.needsWebsite === true || lead.websiteStatus === 'none' || lead.websiteStatus === 'social_only';\n  \n  if (isPending && hasWhatsApp && needsSite) {\n    // Formata o número para padrão DDI 55\n    let cleanPhone = lead.whatsapp.replace(/\\D/g, '');\n    if (!cleanPhone.startsWith('55') && cleanPhone.length === 11) {\n      cleanPhone = '55' + cleanPhone;\n    }\n\n    validLeads.push({\n      json: {\n        ...lead,\n        cleanPhone,\n        regionalPitch: lead.suggestedPitch || '',\n        feedbackFormUrl: $env.FEEDBACK_FORM_URL || 'https://tally.so/r/app-cic-feedback',\n        appDemoUrl: $env.APP_DEMO_URL || 'https://app-cic-demo.web.app'\n      }\n    });\n  }\n}\n\n// Limita o lote de disparo diário para evitar bloqueio no WhatsApp (ex: 5 por execução)\nreturn validLeads.slice(0, 5);"
+      },
+      "id": "node-filter-qualify",
+      "name": "Filtrar e Qualificar Leads Alvo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 360]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gera o roteiro amigável e personalizado para cada comerciante\nconst lead = $json;\n\nconst firstName = (lead.ownerName || 'amigo(a)').split(' ')[0];\nconst business = lead.businessName || 'seu comércio';\nconst region = lead.neighborhood ? `${lead.neighborhood} (${lead.city})` : lead.city;\n\n// Script focado em reciprocidade e entrega do App-CIC 100% grátis sem empurrar venda\nconst messageText = `Olá, ${firstName}! Tudo bem?\\n\\nAcompanho o movimento bacana do *${business}* aqui na região de ${region}.\\n\\nSou desenvolvedor e desenvolvemos o *App-CIC*, um aplicativo simples de celular para controle rápido de saídas de mercadorias no balcão e avisos de falta de estoque, evitando perdas e furos no caixa.\\n\\nEstamos selecionando 3 comércios de destaque em ${lead.neighborhood || lead.city} para liberar o aplicativo de forma *100% gratuita*.\\n\\nNão cobramos nada nem pedimos cartão. O nosso único interesse é ouvir a sua opinião sincera através de um formulário rápido de feedback após o teste.\\n\\nPosso te mandar um vídeo de 1 minuto mostrando como funciona no celular?`;\n\nreturn {\n  json: {\n    ...lead,\n    messageText,\n    targetPhone: lead.cleanPhone\n  }\n};"
+      },
+      "id": "node-format-message",
+      "name": "Gerar Script Persuasivo (Cavalo de Tróia)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.EVOLUTION_API_URL || 'http://localhost:8080' }}/message/sendText/{{ $env.EVOLUTION_INSTANCE_NAME || 'autolead' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.EVOLUTION_API_KEY || 'SUA_CHAVE_AQUI' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $json.targetPhone }}\",\n  \"options\": {\n    \"delay\": 1200,\n    \"presence\": \"composing\"\n  },\n  \"textMessage\": {\n    \"text\": \"{{ $json.messageText }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "node-send-whatsapp",
+      "name": "Disparar WhatsApp (Evolution / Z-API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 360]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $env.AUTOLEAD_API_URL || 'http://localhost:3000' }}/api/leads/{{ $json.id }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"status\": \"disparado_whatsapp\",\n  \"dispatchStatus\": \"enviado\",\n  \"lastContactAt\": \"{{ $now.toISO() }}\",\n  \"salesNotes\": \"Disparado automaticamente via n8n com convite para teste gratuito do App-CIC.\"\n}",
+        "options": {}
+      },
+      "id": "node-update-lead-status",
+      "name": "Atualizar Status no AutoLead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1360, 360]
+    },
+    {
+      "parameters": {
+        "amount": 48,
+        "unit": "hours"
+      },
+      "id": "node-wait-48h",
+      "name": "Aguardar 48 Horas de Teste",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1580, 360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.EVOLUTION_API_URL || 'http://localhost:8080' }}/message/sendText/{{ $env.EVOLUTION_INSTANCE_NAME || 'autolead' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.EVOLUTION_API_KEY || 'SUA_CHAVE_AQUI' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $json.targetPhone }}\",\n  \"options\": {\n    \"delay\": 1500,\n    \"presence\": \"composing\"\n  },\n  \"textMessage\": {\n    \"text\": \"Olá, {{ $json.ownerName }}! Como estão os testes com o App-CIC aí no {{ $json.businessName }}?\\n\\nConforme combinamos, o seu feedback é o que direciona as próximas melhorias! Preparamos um formulário super rápido de 2 minutos:\\n\\n👉 {{ $json.feedbackFormUrl }}\\n\\nSua resposta nos ajuda muito a deixar o app cada vez melhor para os comércios locais! Muito obrigado!\"\n  }\n}",
+        "options": {}
+      },
+      "id": "node-send-feedback-request",
+      "name": "Enviar Lembrete do Formulário de Feedback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1820, 360]
+    }
+  ],
+  "connections": {
+    "Agendamento Diário (09:30 Seg-Sex)": {
+      "main": [
+        [
+          {
+            "node": "Buscar Leads na API AutoLead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Instantâneo (Via App AutoLead)": {
+      "main": [
+        [
+          {
+            "node": "Buscar Leads na API AutoLead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Leads na API AutoLead": {
+      "main": [
+        [
+          {
+            "node": "Filtrar e Qualificar Leads Alvo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar e Qualificar Leads Alvo": {
+      "main": [
+        [
+          {
+            "node": "Gerar Script Persuasivo (Cavalo de Tróia)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar Script Persuasivo (Cavalo de Tróia)": {
+      "main": [
+        [
+          {
+            "node": "Disparar WhatsApp (Evolution / Z-API)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disparar WhatsApp (Evolution / Z-API)": {
+      "main": [
+        [
+          {
+            "node": "Atualizar Status no AutoLead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar Status no AutoLead": {
+      "main": [
+        [
+          {
+            "node": "Aguardar 48 Horas de Teste",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aguardar 48 Horas de Teste": {
+      "main": [
+        [
+          {
+            "node": "Enviar Lembrete do Formulário de Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

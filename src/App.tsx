@@ -5,6 +5,8 @@ import { SpreadsheetView } from './components/SpreadsheetView';
 import { ScrapingView } from './components/ScrapingView';
 import { AppCicView } from './components/AppCicView';
 import { ReportsView } from './components/ReportsView';
+import { BrainView } from './components/BrainView';
+import { FeedbackView } from './components/FeedbackView';
 import { NotificationDropdown } from './components/NotificationDropdown';
 import { WhatsAppDispatchModal } from './components/WhatsAppDispatchModal';
 import { LeadDetailModal } from './components/LeadDetailModal';
@@ -21,7 +23,7 @@ import {
 import { Bell, CheckCircle2, Sparkles, X, MessageSquare } from 'lucide-react';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'spreadsheet' | 'scraping' | 'cic' | 'reports'>('dashboard');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'spreadsheet' | 'scraping' | 'cic' | 'feedback' | 'reports' | 'brain'>('dashboard');
 
   // Application Data States
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -480,6 +482,7 @@ export default function App() {
                 onOpenScraping={() => setCurrentTab('scraping')}
                 onOpenSpreadsheet={() => setCurrentTab('spreadsheet')}
                 onOpenAppCic={() => setCurrentTab('cic')}
+                onOpenFeedback={() => setCurrentTab('feedback')}
                 onSelectLead={(id) => setSelectedLeadId(id)}
                 onOpenWhatsApp={(lead) => setWhatsAppLead(lead)}
               />
@@ -517,8 +520,22 @@ export default function App() {
               />
             )}
 
+            {currentTab === 'feedback' && (
+              <FeedbackView 
+                onNotify={(title, msg, type) => showPushToast(title, msg, type)}
+              />
+            )}
+
             {currentTab === 'reports' && (
               <ReportsView onGenerateReport={handleGenerateReport} />
+            )}
+
+            {currentTab === 'brain' && (
+              <BrainView 
+                onGoToScraping={() => setCurrentTab('scraping')}
+                onGoToSpreadsheet={() => setCurrentTab('spreadsheet')}
+                onGoToFeedback={() => setCurrentTab('feedback')}
+              />
             )}
           </>
         )}

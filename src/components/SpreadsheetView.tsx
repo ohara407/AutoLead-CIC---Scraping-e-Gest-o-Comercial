@@ -14,13 +14,15 @@ import {
   Package, 
   Trash2, 
   Eye, 
-  RefreshCw,
-  Copy,
-  Check,
-  Building2,
-  MapPin,
-  Target,
-  Compass
+  RefreshCw, 
+  Copy, 
+  Check, 
+  Building2, 
+  MapPin, 
+  Target, 
+  Compass,
+  LayoutGrid,
+  Table as TableIcon
 } from 'lucide-react';
 import { Lead, WebsiteStatus, LeadStatus } from '../types';
 import { 
@@ -57,6 +59,7 @@ export const SpreadsheetView: React.FC<SpreadsheetViewProps> = ({
   const [onlyWithoutWebsite, setOnlyWithoutWebsite] = useState(false);
   const [onlyNeedsInventory, setOnlyNeedsInventory] = useState(false);
   const [copiedNotification, setCopiedNotification] = useState(false);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   // Extract unique categories
   const categories = useMemo(() => {
@@ -447,14 +450,14 @@ export const SpreadsheetView: React.FC<SpreadsheetViewProps> = ({
         </div>
 
         <div className="flex items-center justify-between text-xs text-slate-500 pt-1 flex-wrap gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span>
               Exibindo <strong className="text-slate-800 font-bold">{filteredLeads.length}</strong> de {leads.length} contatos registrados
             </span>
             {targetLocationFilter !== 'all' && (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
                 <Target className="w-3 h-3" />
-                Filtro de Local: {
+                Filtro: {
                   targetLocationFilter === 'only_targets' ? 'Somente Locais-Alvo' :
                   targetLocationFilter === 'cocaia_guarulhos' ? 'Cocaia (Guarulhos)' :
                   targetLocationFilter === 'senac_jurubatuba' ? 'Senac Jurubatuba' :
@@ -464,28 +467,217 @@ export const SpreadsheetView: React.FC<SpreadsheetViewProps> = ({
               </span>
             )}
           </div>
-          {(onlyWithoutWebsite || onlyNeedsInventory || categoryFilter !== 'all' || statusFilter !== 'all' || targetLocationFilter !== 'all' || searchTerm) && (
-            <button
-              onClick={() => {
-                setOnlyWithoutWebsite(false);
-                setOnlyNeedsInventory(false);
-                setCategoryFilter('all');
-                setStatusFilter('all');
-                setTargetLocationFilter('all');
-                setSearchTerm('');
-              }}
-              className="text-emerald-700 hover:underline font-semibold"
-            >
-              Limpar Todos os Filtros
-            </button>
-          )}
+
+          <div className="flex items-center gap-3">
+            {/* View Mode Toggle (Cards vs Table) */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button
+                type="button"
+                id="btn-viewmode-cards"
+                onClick={() => setViewMode('cards')}
+                className={`min-h-[32px] px-2.5 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+                  viewMode === 'cards'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="Modo Cards (Perfeito para celular e toque)"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Cards</span>
+              </button>
+
+              <button
+                type="button"
+                id="btn-viewmode-table"
+                onClick={() => setViewMode('table')}
+                className={`min-h-[32px] px-2.5 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+                  viewMode === 'table'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="Modo Tabela Completa"
+              >
+                <TableIcon className="w-3.5 h-3.5" />
+                <span>Tabela</span>
+              </button>
+            </div>
+
+            {(onlyWithoutWebsite || onlyNeedsInventory || categoryFilter !== 'all' || statusFilter !== 'all' || targetLocationFilter !== 'all' || searchTerm) && (
+              <button
+                onClick={() => {
+                  setOnlyWithoutWebsite(false);
+                  setOnlyNeedsInventory(false);
+                  setCategoryFilter('all');
+                  setStatusFilter('all');
+                  setTargetLocationFilter('all');
+                  setSearchTerm('');
+                }}
+                className="text-emerald-700 hover:underline font-semibold"
+              >
+                Limpar Filtros
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Spreadsheet Table Container */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table id="leads-spreadsheet-table" className="w-full text-left text-xs border-collapse">
+      {/* RENDER MODE: CARDS (Mobile First & Touch Friendly) */}
+      {viewMode === 'cards' && (
+        <div className="space-y-3">
+          {filteredLeads.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
+              <FileSpreadsheet className="w-8 h-8 text-slate-300" />
+              <p className="font-semibold text-sm">Nenhum registro encontrado com os filtros selecionados.</p>
+              <button
+                onClick={onOpenScraping}
+                className="mt-2 text-xs text-emerald-600 font-bold hover:underline"
+              >
+                Executar nova automação de scraping agora
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredLeads.map((lead, index) => {
+                const targetReg = identifyLeadTargetRegion(lead);
+                return (
+                  <div
+                    key={lead.id}
+                    id={`lead-card-mobile-${lead.id}`}
+                    className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs hover:border-emerald-400 transition-all flex flex-col justify-between space-y-3"
+                  >
+                    <div>
+                      {/* Top Badges & Score */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            #{index + 1}
+                          </span>
+                          {targetReg && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                              <Target className="w-3 h-3 text-emerald-600" />
+                              {targetReg.shortLabel}
+                            </span>
+                          )}
+                          <span className="text-[10px] font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
+                            {lead.category}
+                          </span>
+                        </div>
+
+                        <span
+                          className={`text-xs font-black px-2 py-0.5 rounded-full shrink-0 ${
+                            lead.qualificationScore >= 75
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : lead.qualificationScore >= 50
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-slate-100 text-slate-700'
+                          }`}
+                        >
+                          Score {lead.qualificationScore}
+                        </span>
+                      </div>
+
+                      {/* Business & Owner Info */}
+                      <div className="mt-2.5">
+                        <h4 
+                          onClick={() => onSelectLead(lead.id)}
+                          className="font-black text-slate-900 text-base hover:text-emerald-700 cursor-pointer transition-colors leading-snug"
+                        >
+                          {lead.businessName}
+                        </h4>
+                        <p className="text-xs text-slate-600 mt-0.5 font-medium">
+                          👤 {lead.ownerName}
+                        </p>
+                        <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-1">
+                          <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span className="truncate">{lead.address}, {lead.neighborhood} - {lead.city}</span>
+                        </p>
+                      </div>
+
+                      {/* Web Presence & CIC Tags */}
+                      <div className="flex items-center gap-1.5 flex-wrap mt-3 pt-2.5 border-t border-slate-100">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 ${
+                          lead.needsWebsite
+                            ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        }`}>
+                          {lead.needsWebsite ? <AlertTriangle className="w-3 h-3" /> : <Globe className="w-3 h-3" />}
+                          <span>{lead.needsWebsite ? '❌ Sem Site' : '🌐 Site Ativo'}</span>
+                        </span>
+
+                        {lead.needsInventoryControl ? (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1">
+                            <Package className="w-3 h-3" />
+                            <span>📦 App-CIC Grátis</span>
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    {/* Status Select & Quick Mobile Action Buttons */}
+                    <div className="space-y-2 pt-2 border-t border-slate-100">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">Funil:</span>
+                        <select
+                          value={lead.status}
+                          onChange={(e) => onUpdateStatus(lead.id, e.target.value as any)}
+                          className="text-[11px] font-bold py-1 px-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-emerald-500"
+                        >
+                          <option value="novo">Novo Lead</option>
+                          <option value="em_qualificacao">Em Qualificação</option>
+                          <option value="abordado">Abordado WhatsApp</option>
+                          <option value="testando_cic">Testando App-CIC</option>
+                          <option value="em_negociacao_site">Negociando Site</option>
+                          <option value="fechado_site">Fechou Site (R$ 1.500+)</option>
+                          <option value="descartado">Descartado</option>
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-1.5 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => onOpenWhatsApp(lead)}
+                          className="col-span-2 min-h-[44px] bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          <span>WhatsApp</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => onSelectLead(lead.id)}
+                          className="min-h-[44px] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Ficha</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Remover "${lead.businessName}" da planilha?`)) {
+                              onDeleteLead(lead.id);
+                            }
+                          }}
+                          className="min-h-[44px] bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-600 rounded-xl transition-all flex items-center justify-center"
+                          title="Excluir Lead"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* RENDER MODE: FULL TABLE (For desktop or wide screens) */}
+      {viewMode === 'table' && (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+          <div className="overflow-x-auto touch-scroll">
+            <table id="leads-spreadsheet-table" className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
                 <th className="py-3 px-3 w-12 text-center">#</th>
@@ -704,6 +896,7 @@ export const SpreadsheetView: React.FC<SpreadsheetViewProps> = ({
           </span>
         </div>
       </div>
+      )}
     </div>
   );
 };

@@ -120,3 +120,22 @@ export interface StrategicReport {
   recommendedActions: string[];
   aiAnalysisText?: string;
 }
+
+export interface MerchantFeedback {
+  id: string;
+  businessName: string;
+  ownerName: string;
+  phone: string;
+  region: string;
+  category: string;
+  ratingEase: number; // 0 to 10
+  stockAlertHelped: 'yes' | 'partially' | 'no';
+  whatLiked: string; // O que realmente gostou
+  whatDisliked: string; // O que não gostou ou quase desistiu
+  whatToImprove: string; // Sugestões de melhorias
+  missingFeatures: string[]; // Funções que mais fizeram falta
+  wantsWebsite: 'yes' | 'maybe' | 'already_has' | 'no'; // Gatilho de venda de site
+  notes?: string;
+  status: 'novo' | 'analisado' | 'em_negociacao_site' | 'site_fechado';
+  createdAt: string;
+}

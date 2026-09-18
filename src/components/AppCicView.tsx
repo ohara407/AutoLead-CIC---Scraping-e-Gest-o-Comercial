@@ -333,7 +333,7 @@ export const AppCicView: React.FC<AppCicViewProps> = ({
                       setMovementType('saida');
                       setMovementReason('venda_balcao');
                     }}
-                    className="flex-1 py-1.5 px-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-1"
+                    className="flex-1 min-h-[44px] py-2 px-2 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 border border-rose-200 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1"
                   >
                     <ArrowDownRight className="w-3.5 h-3.5 text-rose-600" />
                     <span>Baixa Saída</span>
@@ -347,7 +347,7 @@ export const AppCicView: React.FC<AppCicViewProps> = ({
                       setMovementType('entrada');
                       setMovementReason('reposicao');
                     }}
-                    className="flex-1 py-1.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs rounded-lg transition-colors flex items-center justify-center gap-1"
+                    className="flex-1 min-h-[44px] py-2 px-2 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 text-emerald-700 border border-emerald-200 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1"
                   >
                     <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Entrada</span>
@@ -497,7 +497,7 @@ export const AppCicView: React.FC<AppCicViewProps> = ({
       {/* Modal: Add New Item */}
       {isNewItemModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-4">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <h3 className="font-bold text-slate-900 text-base">Cadastrar Novo Item no App-CIC</h3>
 
             <form onSubmit={handleCreateItem} className="space-y-3 text-xs">
@@ -596,7 +596,7 @@ export const AppCicView: React.FC<AppCicViewProps> = ({
       {/* Modal: Quick Stock Output / Input */}
       {movementModalItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-4">
+          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-slate-900 text-base">
                 {movementType === 'saida' ? 'Registrar Baixa de Saída' : 'Registrar Entrada de Estoque'}
