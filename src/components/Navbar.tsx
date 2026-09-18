@@ -17,8 +17,8 @@ import {
 import { NotificationItem } from '../types';
 
 interface NavbarProps {
-  currentTab: 'dashboard' | 'spreadsheet' | 'scraping' | 'cic' | 'feedback' | 'reports' | 'brain';
-  onSelectTab: (tab: 'dashboard' | 'spreadsheet' | 'scraping' | 'cic' | 'feedback' | 'reports' | 'brain') => void;
+  currentTab: 'dashboard' | 'spreadsheet' | 'scraping' | 'cic' | 'feedback' | 'demos' | 'reports' | 'brain';
+  onSelectTab: (tab: 'dashboard' | 'spreadsheet' | 'scraping' | 'cic' | 'feedback' | 'demos' | 'reports' | 'brain') => void;
   leadsCount: number;
   unreadNotificationsCount: number;
   isScrapingRunning?: boolean;
@@ -130,6 +130,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <MessageSquareQuote className="w-4 h-4 text-emerald-400" />
               <span>Feedback &amp; Venda de Sites</span>
+            </button>
+
+            <button
+              id="nav-tab-demos"
+              onClick={() => onSelectTab('demos')}
+              className={`px-3 py-2 text-xs font-black rounded-xl transition-all flex items-center gap-1.5 ${
+                currentTab === 'demos'
+                  ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-400/40'
+                  : 'text-indigo-700 hover:text-indigo-900 hover:bg-indigo-50'
+              }`}
+            >
+              <Globe className="w-4 h-4 text-indigo-400" />
+              <span>Prévias de Sites</span>
+              <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded-full">
+                R$ 1.200
+              </span>
             </button>
 
             <button
@@ -264,6 +280,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <MessageSquare className="w-4 h-4" />
             <span>Feedback &amp; Vendas</span>
+          </button>
+
+          <button
+            id="mobile-nav-demos"
+            onClick={() => onSelectTab('demos')}
+            className={`min-h-[44px] px-3.5 py-2 text-xs font-black rounded-xl shrink-0 transition-all flex items-center gap-1.5 ${
+              currentTab === 'demos' 
+                ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-400/40' 
+                : 'text-indigo-800 bg-indigo-100/70 active:bg-indigo-200'
+            }`}
+          >
+            <Globe className="w-4 h-4 text-indigo-600" />
+            <span>Prévias de Sites</span>
           </button>
 
           <button

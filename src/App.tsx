@@ -7,6 +7,7 @@ import { AppCicView } from './components/AppCicView';
 import { ReportsView } from './components/ReportsView';
 import { BrainView } from './components/BrainView';
 import { FeedbackView } from './components/FeedbackView';
+import { WebsiteDemoView } from './components/WebsiteDemoView';
 import { NotificationDropdown } from './components/NotificationDropdown';
 import { WhatsAppDispatchModal } from './components/WhatsAppDispatchModal';
 import { LeadDetailModal } from './components/LeadDetailModal';
@@ -23,7 +24,7 @@ import {
 import { Bell, CheckCircle2, Sparkles, X, MessageSquare } from 'lucide-react';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'spreadsheet' | 'scraping' | 'cic' | 'feedback' | 'reports' | 'brain'>('dashboard');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'spreadsheet' | 'scraping' | 'cic' | 'feedback' | 'demos' | 'reports' | 'brain'>('dashboard');
 
   // Application Data States
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -34,6 +35,7 @@ export default function App() {
 
   // Modals and UI States
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [selectedDemoLeadId, setSelectedDemoLeadId] = useState<string | null>(null);
   const [whatsAppLead, setWhatsAppLead] = useState<Lead | null>(null);
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);

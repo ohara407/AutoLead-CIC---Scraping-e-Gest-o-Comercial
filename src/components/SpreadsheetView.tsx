@@ -35,6 +35,7 @@ interface SpreadsheetViewProps {
   leads: Lead[];
   onSelectLead: (leadId: string) => void;
   onOpenWhatsApp: (lead: Lead) => void;
+  onOpenWebsiteDemo?: (leadId: string) => void;
   onUpdateStatus: (leadId: string, status: LeadStatus) => void;
   onDeleteLead: (leadId: string) => void;
   onOpenNewLeadModal: () => void;
@@ -45,6 +46,7 @@ export const SpreadsheetView: React.FC<SpreadsheetViewProps> = ({
   leads,
   onSelectLead,
   onOpenWhatsApp,
+  onOpenWebsiteDemo,
   onUpdateStatus,
   onDeleteLead,
   onOpenNewLeadModal,
@@ -632,14 +634,24 @@ export const SpreadsheetView: React.FC<SpreadsheetViewProps> = ({
                         </select>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-1.5 pt-1">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
                         <button
                           type="button"
                           onClick={() => onOpenWhatsApp(lead)}
-                          className="col-span-2 min-h-[44px] bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
+                          className="min-h-[44px] bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
                         >
                           <MessageSquare className="w-4 h-4" />
                           <span>WhatsApp</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => onOpenWebsiteDemo?.(lead.id)}
+                          className="min-h-[44px] bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-black text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
+                          title="Gerar Prévia de Site (R$ 1.200)"
+                        >
+                          <Globe className="w-4 h-4 text-indigo-200" />
+                          <span>Prévia Site</span>
                         </button>
 
                         <button
@@ -850,6 +862,16 @@ export const SpreadsheetView: React.FC<SpreadsheetViewProps> = ({
                           className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors shadow-2xs"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          id={`btn-site-demo-${lead.id}`}
+                          onClick={() => onOpenWebsiteDemo?.(lead.id)}
+                          title="Gerar Prévia de Site (R$ 1.200)"
+                          className="p-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-2xs"
+                        >
+                          <Globe className="w-3.5 h-3.5" />
                         </button>
 
                         <button

@@ -139,3 +139,35 @@ export interface MerchantFeedback {
   status: 'novo' | 'analisado' | 'em_negociacao_site' | 'site_fechado';
   createdAt: string;
 }
+
+export interface WebsiteDemoItem {
+  title: string;
+  desc: string;
+  priceText?: string;
+  badge?: string;
+}
+
+export interface WebsiteDemoConfig {
+  id: string;
+  leadId?: string;
+  businessName: string;
+  ownerName: string;
+  category: string;
+  nicheArchetype: 'mecanica' | 'alimentacao' | 'construcao' | 'pet' | 'servicos' | 'geral';
+  city: string;
+  neighborhood: string;
+  address: string;
+  phone: string;
+  whatsapp: string;
+  themeColor: 'emerald' | 'blue' | 'amber' | 'purple' | 'rose' | 'slate';
+  tagline: string;
+  headline: string;
+  subheadline: string;
+  heroImage: string;
+  ctaButtonText: string;
+  customWhatsAppText: string;
+  services: WebsiteDemoItem[];
+  highlights: string[];
+  workingHours: string;
+  suggestedSellingPrice: number;
+}

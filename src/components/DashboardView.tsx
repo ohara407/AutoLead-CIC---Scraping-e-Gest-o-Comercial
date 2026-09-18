@@ -24,6 +24,7 @@ interface DashboardViewProps {
   onOpenSpreadsheet: () => void;
   onOpenAppCic: () => void;
   onOpenFeedback?: () => void;
+  onOpenWebsiteDemo?: (leadId?: string) => void;
   onSelectLead: (leadId: string) => void;
   onOpenWhatsApp: (lead: Lead) => void;
 }
@@ -35,6 +36,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenSpreadsheet,
   onOpenAppCic,
   onOpenFeedback,
+  onOpenWebsiteDemo,
   onSelectLead,
   onOpenWhatsApp,
 }) => {
@@ -101,6 +103,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             >
               <MessageSquare className="w-4 h-4" />
               <span>Feedbacks &amp; Venda</span>
+            </button>
+          )}
+
+          {onOpenWebsiteDemo && (
+            <button
+              onClick={() => onOpenWebsiteDemo()}
+              className="flex-1 sm:flex-none min-h-[44px] px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-black text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+            >
+              <Globe className="w-4 h-4 text-indigo-200" />
+              <span>Prévias de Sites (R$ 1.200)</span>
             </button>
           )}
 
